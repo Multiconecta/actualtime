@@ -111,10 +111,11 @@ class PluginActualtimeConfig extends CommonDBTM {
       echo "</td>";
       echo "</tr>";
 
-      //echo "<tr class='tab_bg_1' name='optional$rand' $style>
-      //   <td>example settings 2";
-      //echo "</td>";
-      //echo "</tr>";
+      echo "<tr class='tab_bg_1' name='optional$rand' $style>
+         <td>" . __("Automatically open new created tasks", "actualtime") . "</td><td>";
+      Dropdown::showYesNo('autoopennew', $this->autoOpenNew(), -1);
+      echo "</td>";
+      echo "</tr>";
 
       echo "<tr class='tab_bg_1' align='center'>";
 
@@ -173,6 +174,16 @@ class PluginActualtimeConfig extends CommonDBTM {
     */
    function displayInfoForEveryone() {
       return ($this->fields['displayinfofor'] == 0);
+   }
+
+   /**
+    * Auto open the form for the task with a currently running timer
+    * when listing tickets' tasks?
+    *
+    * @return boolean
+    */
+   function autoOpenNew() {
+      return ($this->fields['autoopennew'] ? true : false);
    }
 
    static function install(Migration $migration) {
@@ -246,6 +257,31 @@ class PluginActualtimeConfig extends CommonDBTM {
       }
 
       if ($DB->tableExists($table)) {
+         if (! $DB->fieldExists($table,'showtimerpopup')) {
+            $migration->addField(
+               $table,
+               'showtimerpopup',
+               'boolean',
+               [
+                  'update' => true,
+                  'value'  => true,
+                  'after' => 'enable'
+               ]
+            );
+         }
+         if (! $DB->fieldExists($table,'autoopennew')) {
+            // Add new field autoopennew
+            $migration->addField(
+               $table,
+               'autoopennew',
+               'boolean',
+               [
+                  'update' => false,
+                  'value'  => false,
+                  'after'  => 'showtimerpopup',
+               ]
+            );
+         }
 
          // Create default record (if it does not exist)
          $reg = $DB->request($table);
