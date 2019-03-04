@@ -16,8 +16,8 @@ class PluginActualtimeTask extends CommonDBTM{
    }
 
    static public function postForm($params) {
-
       global $CFG_GLPI;
+
       $item = $params['item'];
       $text_restart = __('Restart', 'actualtime');
       $text_pause = __('Pause', 'actualtime');
@@ -583,14 +583,17 @@ JAVASCRIPT;
 
    static function afterAdd(TicketTask $item) {
       global $DB;
-      if ($item->getField('state')==1 && $item->fields['id']) {
-         // Empty record means just added task (for postShowItem)
-         $DB->insert(
-            'glpi_plugin_actualtime_tasks', [
-               'tasks_id' => $item->fields['id'],
-               'users_id' => Session::getLoginUserID(), 
-            ]
-         );
+      $config = new PluginActualtimeConfig;
+      if ($config->autoOpenNew()) {
+         if ($item->getField('state')==1 && $item->fields['id']) {
+            // Empty record means just added task (for postShowItem)
+            $DB->insert(
+               'glpi_plugin_actualtime_tasks', [
+                  'tasks_id' => $item->fields['id'],
+                  'users_id' => Session::getLoginUserID(),
+               ]
+            );
+         }
       }
    }
 
@@ -620,25 +623,33 @@ JAVASCRIPT;
    static public function postShowItem($params) {
       global $DB,$CFG_GLPI;
 
-      if ($params['item']->fields['state']==1 && $params['item']->fields['id']) {
-         $query=[
+      $config = new PluginActualtimeConfig;
+      $autoopennew = false;
+      $task_id=$params['item']->fields['id'];
+      if ($config->autoOpenNew() && $params['item']->fields['state']==1 && $task_id) {
+         // New created task opens automatically
+         $query = [
             'FROM'=>self::getTable(),
             'WHERE'=>[
-               'tasks_id'     => $params['item']->fields['id'],
+               'tasks_id'     => $task_id,
                'actual_begin' => null,
                'actual_end'   => null,
                'users_id'     => Session::getLoginUserID(),
             ]
          ];
-         $req=$DB->request($query);
-         if ($row=$req->next()) {
-            // Just added task. Open edition window
-            $task_id=$params['item']->fields['id'];
-            $ticket_id=$params['item']->fields['tickets_id'];
-            $item_rand=$params['options']['rand'];
-            $div="<div id='autoEditNew$item_rand' onclick='javascript:viewEditSubitem$ticket_id$item_rand(event, \"TicketTask\", $task_id, this, \"viewitemTicketTask$task_id$item_rand\")'></div>";
-            echo $div;
-            $script=<<<JAVASCRIPT
+         $req = $DB->request($query);
+         if ($row = $req->next()) {
+            $autoopennew = true;
+         }
+      }
+      if ($autoopennew || ($config->autoOpenRunning() && $params['item']->fields['id'] == self::checkUser($task_id, Session::getLoginUserID()))) {
+         // New created task or user has running timer on this task
+         // Open edit window automatically
+         $ticket_id=$params['item']->fields['tickets_id'];
+         $item_rand=$params['options']['rand'];
+         $div="<div id='autoEditNew$item_rand' onclick='javascript:viewEditSubitem$ticket_id$item_rand(event, \"TicketTask\", $task_id, this, \"viewitemTicketTask$task_id$item_rand\")'></div>";
+         echo $div;
+         $script=<<<JAVASCRIPT
 	$(document).ready(function(){
 		$("#autoEditNew{$item_rand}").click();
 		function waitForFormLoad(i){
@@ -658,8 +669,9 @@ JAVASCRIPT;
 		waitForFormLoad(0);
 	});
 JAVASCRIPT;
-            print_r(Html::scriptBlock($script));
-            // And remove empty record
+         print_r(Html::scriptBlock($script));
+         if ($autoopennew) {
+            // Remove empty record
             $DB->delete(
                'glpi_plugin_actualtime_tasks', [
                   'id'           => $row['id'],

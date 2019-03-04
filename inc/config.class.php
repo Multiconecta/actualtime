@@ -87,14 +87,13 @@ class PluginActualtimeConfig extends CommonDBTM {
       Dropdown::showYesNo('autoopennew', $this->autoOpenNew(), -1);
       echo "</td>";
       echo "</tr>";
-
-      //echo "<tr class='tab_bg_1' name='optional$rand' $style>
-      //   <td>example settings 2";
-      //echo "</td>";
-      //echo "</tr>";
+      echo "<tr class='tab_bg_1' name='optional$rand' $style>
+         <td>" . __("Automatically open task with timer running", "actualtime") . "</td><td>";
+      Dropdown::showYesNo('autoopenrunning', $this->autoOpenRunning(), -1);
+      echo "</td>";
+      echo "</tr>";
 
       echo "<tr class='tab_bg_1' align='center'>";
-
       $this->showFormButtons(['candel'=>false]);
    }
 
@@ -127,6 +126,10 @@ class PluginActualtimeConfig extends CommonDBTM {
       return ($this->fields['autoopennew'] ? true : false);
    }
 
+   function autoOpenRunning() {
+      return ($this->fields['autoopenrunning'] ? true : false);
+   }
+
    static function install(Migration $migration) {
       global $DB;
 
@@ -144,11 +147,24 @@ class PluginActualtimeConfig extends CommonDBTM {
       }
 
       if ($DB->tableExists($table)) {
-         if (! $DB->fieldExists($table,'autoopennew')) {
+         if (! $DB->fieldExists($table, 'autoopennew')) {
             // Add new field autoopennew
             $migration->addField(
                $table,
                'autoopennew',
+               'boolean',
+               [
+                  'update' => false,
+                  'value'  => false,
+                  'after'  => 'enable',
+               ]
+            );
+         }
+         if (! $DB->fieldExists($table, 'autoopenrunning')) {
+            // Add new field autoopennew
+            $migration->addField(
+               $table,
+               'autoopenrunning',
                'boolean',
                [
                   'update' => false,
@@ -166,21 +182,6 @@ class PluginActualtimeConfig extends CommonDBTM {
                ]
             );
          }
-
-         // New settings (fields)
-         //$migration->addField(
-         //   $table,
-         //   'newsettingfieldname',
-         //   'newsettingfieldtype',
-         //   'newsettingfieldoptions',
-         //);
-         //$DB->update(
-         //   $table, [
-         //      'newsettingfieldname' => 'defaultvalue'
-         //   ], [
-         //      'id' => 1
-         //   ]
-         //);
 
       }
 
