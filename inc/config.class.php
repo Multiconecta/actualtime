@@ -111,14 +111,19 @@ class PluginActualtimeConfig extends CommonDBTM {
       echo "</td>";
       echo "</tr>";
 
-      echo "<tr class='tab_bg_1' name='optional$rand' $style>
-         <td>" . __("Automatically open new created tasks", "actualtime") . "</td><td>";
+      echo "<tr class='tab_bg_1' name='optional$rand' $style>";
+      echo "<td>" . __("Automatically open new created tasks", "actualtime") . "</td><td>";
       Dropdown::showYesNo('autoopennew', $this->autoOpenNew(), -1);
       echo "</td>";
       echo "</tr>";
 
-      echo "<tr class='tab_bg_1' align='center'>";
+      echo "<tr class='tab_bg_1' name='optional$rand' $style>";
+      echo "<td>" . __("Automatically open task with timer running", "actualtime") . "</td><td>";
+      Dropdown::showYesNo('autoopenrunning', $this->autoOpenRunning(), -1);
+      echo "</td>";
+      echo "</tr>";
 
+      echo "<tr class='tab_bg_1' align='center'>";
       $this->showFormButtons(['candel'=>false]);
    }
 
@@ -177,13 +182,22 @@ class PluginActualtimeConfig extends CommonDBTM {
    }
 
    /**
-    * Auto open the form for the task with a currently running timer
-    * when listing tickets' tasks?
+    * Auto open the form for the task that was just created (new tasks)?
     *
     * @return boolean
     */
    function autoOpenNew() {
       return ($this->fields['autoopennew'] ? true : false);
+   }
+
+   /**
+    * Auto open the form for the task with a currently running timer
+    * when listing tickets' tasks?
+    *
+    * @return boolean
+    */
+   function autoOpenRunning() {
+      return ($this->fields['autoopenrunning'] ? true : false);
    }
 
    static function install(Migration $migration) {
@@ -257,7 +271,8 @@ class PluginActualtimeConfig extends CommonDBTM {
       }
 
       if ($DB->tableExists($table)) {
-         if (! $DB->fieldExists($table,'showtimerpopup')) {
+         if (! $DB->fieldExists($table, 'showtimerpopup')) {
+            // Add new field showtimerpopup
             $migration->addField(
                $table,
                'showtimerpopup',
@@ -269,7 +284,7 @@ class PluginActualtimeConfig extends CommonDBTM {
                ]
             );
          }
-         if (! $DB->fieldExists($table,'autoopennew')) {
+         if (! $DB->fieldExists($table, 'autoopennew')) {
             // Add new field autoopennew
             $migration->addField(
                $table,
@@ -282,7 +297,19 @@ class PluginActualtimeConfig extends CommonDBTM {
                ]
             );
          }
-
+         if (! $DB->fieldExists($table, 'autoopenrunning')) {
+            // Add new field autoopenrunning
+            $migration->addField(
+               $table,
+               'autoopenrunning',
+               'boolean',
+               [
+                  'update' => false,
+                  'value'  => false,
+                  'after'  => 'autoopennew',
+               ]
+            );
+         }
          // Create default record (if it does not exist)
          $reg = $DB->request($table);
          if (! count($reg)) {

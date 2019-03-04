@@ -27,11 +27,11 @@ function plugin_actualtime_install() {
    return true;
 }
 
-function plugin_actualtime_item_stats($item) {
+function plugin_activetime_item_stats($item) {
    PluginActualtimeTask::showStats($item);
 }
 
-function plugin_actualtime_item_update($item) {
+function plugin_activetime_item_update($item) {
    PluginActualtimeTask::preUpdate($item);
 }
 

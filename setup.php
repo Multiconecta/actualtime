@@ -1,5 +1,5 @@
 <?php
-define ('PLUGIN_ACTUALTIME_VERSION', '1.1.3');
+define ('PLUGIN_ACTUALTIME_VERSION', '1.1.4');
 // Minimal GLPI version, inclusive
 define("PLUGIN_ACTUALTIME_MIN_GLPI", "9.3.0");
 // Maximum GLPI version, exclusive
@@ -93,6 +93,7 @@ function plugin_init_actualtime() {
       }
 
       if ($config->autoOpenNew()) {
+          // This hook is not needed if not opening new tasks automatically
           $PLUGIN_HOOKS['item_add']['actualtime'] = ['TicketTask'=>'plugin_actualtime_item_add'];
       }
 
