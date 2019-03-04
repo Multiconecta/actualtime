@@ -83,7 +83,8 @@ class PluginActualtimeConfig extends CommonDBTM {
 
       // Include lines with other settings
       echo "<tr class='tab_bg_1' name='optional$rand' $style>
-         <td>    ";
+         <td>" . __("Automatically open new created tasks", "actualtime") . "</td><td>";
+      Dropdown::showYesNo('autoopennew', $this->autoOpenNew(), -1);
       echo "</td>";
       echo "</tr>";
 
@@ -115,18 +116,15 @@ class PluginActualtimeConfig extends CommonDBTM {
       return true;
    }
 
-   static function postItemForm(array $params) {
-      echo "<tr><td>postItemForm AQUI</td></tr>";
-   }
-   static function postShowItem(array $params) {
-      echo "<tr><td>postShowItem AQUI</td></tr>";
-   }
-
    /**
     * @return mixed
     */
    function isEnabled() {
       return ($this->fields['enable'] ? true : false);
+   }
+
+   function autoOpenNew() {
+      return ($this->fields['autoopennew'] ? true : false);
    }
 
    static function install(Migration $migration) {
@@ -146,7 +144,19 @@ class PluginActualtimeConfig extends CommonDBTM {
       }
 
       if ($DB->tableExists($table)) {
-
+         if (! $DB->fieldExists($table,'autoopennew')) {
+            // Add new field autoopennew
+            $migration->addField(
+               $table,
+               'autoopennew',
+               'boolean',
+               [
+                  'update' => false,
+                  'value'  => false,
+                  'after'  => 'enable',
+               ]
+            );
+         }
          // Create default record (if it does not exist)
          $reg = $DB->request($table);
          if (! count($reg)) {
