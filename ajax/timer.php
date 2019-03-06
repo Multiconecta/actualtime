@@ -75,20 +75,30 @@ if (isset($_POST["action"])) {
                      'actual_end' => null,
                   ]
                );
-               if ($_POST['action']=='end') {
+               $result=[
+                  'mensage' => __("Timer completed", 'actualtime'),
+                  'title' => __('Information'),
+                  'class'   => 'info_msg',
+               ];
+               $config = new PluginActualtimeConfig;
+               if ($_POST['action']=='end' || $config->updateDuration()) {
+                  $fields = [];
+                  if ($_POST['action']=='end') {
+                     $fields['state'] = 2;
+                  }
+                  if ($config->updateDuration()) {
+                     $totaltime = PluginActualtimeTask::timeRounded(PluginActualtimeTask::totalEndTime($task_id));
+                     $fields['actiontime'] = $totaltime;
+                     // Send Duration field value to update form
+                     $result['duration'] = $totaltime;
+                  }
                   $DB->update(
-                     'glpi_tickettasks', [
-                        'state' => 2,
-                     ], [
+                     'glpi_tickettasks',
+                     $fields, [
                         'id' => $task_id,
                      ]
                   );
                }
-               $result=[
-                  'mensage' => __("Timer completed", 'actualtime'),
-                  'title'   => __('Information'),
-                  'class'   => 'info_msg',
-               ];
 
             } else {
 

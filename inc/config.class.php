@@ -66,30 +66,54 @@ class PluginActualtimeConfig extends CommonDBTM {
 
       echo "<input type='hidden' name='id' value='1'>";
 
-      echo "<tr class='tab_bg_1'>
-            <td>" . __("Enable timer on tasks", "actualtime") . "</td><td>";
+      echo "<tr class='tab_bg_1'>";
+      echo "<td colspan='2' width='50%'>" . __("Enable timer on tasks", "actualtime") . "</td>";
+      echo "<td colspan='2' width='50%'>";
       Dropdown::showYesNo('enable', $this->isEnabled(), -1,
-                          ['on_change' => 'show_hide_options(this.value);']);
+                          ['on_change' => 'atconfig_showhideoptions($(this));']);
       echo "</td>";
       echo "</tr>";
 
       echo Html::scriptBlock("
-         function show_hide_options(val) {
-            var display = (val == 0) ? 'none' : '';
-            $('tr[name=\"optional$rand\"').css( 'display', display );
+	function atconfig_showhideoptions(field) {
+		var formobj=field.closest('form')
+                var display=(formobj.find(\"select[name='enable']\").val() == 0) ? 'none' : '';
+		$('tr[name^=\"atconfig${rand}\"]').css( 'display', display );
          }");
 
       $style = ($this->isEnabled()) ? "" : "style='display: none '";
 
       // Include lines with other settings
-      echo "<tr class='tab_bg_1' name='optional$rand' $style>
-         <td>" . __("Automatically open new created tasks", "actualtime") . "</td><td>";
+      echo "<tr class='tab_bg_1' name='atconfig${rand}1' $style>";
+      echo "<td width='30%'>" . __("Automatically open new created tasks", "actualtime") . "</td>";
+      echo "<td width='20%'>";
       Dropdown::showYesNo('autoopennew', $this->autoOpenNew(), -1);
       echo "</td>";
-      echo "</tr>";
-      echo "<tr class='tab_bg_1' name='optional$rand' $style>
-         <td>" . __("Automatically open task with timer running", "actualtime") . "</td><td>";
+      echo "<td width='30%'>" . __("Automatically open task with timer running", "actualtime") . "</td>";
+      echo "<td width='20%'>";
       Dropdown::showYesNo('autoopenrunning', $this->autoOpenRunning(), -1);
+      echo "</td>";
+      echo "</tr>";
+      echo "<tr class='tab_bg_1' name='atconfig${rand}1' $style>";
+      echo "<td width='30%'>" . __("Update task duration on timer stop", "actualtime") . "</td>";
+      echo "<td width='20%'>";
+      Dropdown::showYesNo('updateduration', $this->updateDuration(), -1);
+      echo "</td>";
+      $values = [
+         0 => __('Do not round total duration', 'actualtime'),
+         1 => __('Normal round', 'actualtime'),
+         2 => __('Round down', 'actualtime'),
+         3 => __('Round up', 'actualtime')
+      ];
+      echo "<td width='30%'>" . __('Round method', 'actualtime') . "</td>";
+      echo "<td width='20%'>";
+      Dropdown::showFromArray(
+         'durationround',
+         $values,
+         [
+            'value' => $this->fields['durationround']
+         ]
+      );
       echo "</td>";
       echo "</tr>";
 
@@ -128,6 +152,10 @@ class PluginActualtimeConfig extends CommonDBTM {
 
    function autoOpenRunning() {
       return ($this->fields['autoopenrunning'] ? true : false);
+   }
+
+   function updateDuration() {
+      return ($this->fields['updateduration'] ? true : false);
    }
 
    static function install(Migration $migration) {
@@ -169,7 +197,33 @@ class PluginActualtimeConfig extends CommonDBTM {
                [
                   'update' => false,
                   'value'  => false,
-                  'after'  => 'enable',
+                  'after'  => 'autoopennew',
+               ]
+            );
+         }
+         if (! $DB->fieldExists($table, 'updateduration')) {
+            // Add new field updateduration
+            $migration->addField(
+               $table,
+               'updateduration',
+               'boolean',
+               [
+                  'update' => false,
+                  'value'  => false,
+                  'after'  => 'autoopenrunning',
+               ]
+            );
+         }
+         if (! $DB->fieldExists($table, 'durationround')) {
+            // Add new field durationround
+            $migration->addField(
+               $table,
+               'durationround',
+               'integer',
+               [
+                  'update' => 0,
+                  'value'  => 0,
+                  'after'  => 'updateduration',
                ]
             );
          }

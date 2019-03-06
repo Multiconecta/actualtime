@@ -77,26 +77,39 @@ class PluginActualtimeTask extends CommonDBTM{
                   $html.="</td></tr>";
                   $html.="<tr class='tab_bg_2'>";
                   $html.="<td class='center'>".__("Start date")."</td><td class='center'>".__("Partial actual duration", 'actualtime')."</td>";
-                  $html.="<td>".__('Actual Duration', 'actualtime')." </td><td id='real_clock$rand'>".HTML::timestampToString($time)."</td>";
+                  $html.="<td>".__('Actual Duration', 'actualtime')." </td><td id='real_clock$rand'>".self::timeFormated($time, 2)."</td>";
                   $html.="</tr>";
                   $html.=self::getSegment($item->getID());
                   echo $html;
 
                   $ajax_url=$CFG_GLPI['root_doc']."/plugins/actualtime/ajax/timer.php";
+                  //TRANS: 'h' is the symbol for hour
+                  $hsymbol = __('h', 'actualtime');
+                  //TRANS: 'min' is the symbol for minute
+                  $msymbol = __('min', 'actualtime');
+                  //TRANS: 's' is the symbol for second
+                  $ssymbol = __('s', 'actualtime');
+                  $hour = substr(_n('%d hour','%d hours',1),3);
+                  $hours = substr(_n('%d hour','%d hours',2),3);
+                  $minute = substr(_n('%d minute','%d minutes',1),3);
+                  $minutes = substr(_n('%d minute','%d minutes',2),3);
+                  $second = substr(_n('%d second','%d seconds',1),3);
+                  $seconds = substr(_n('%d second','%d seconds',2),3);
+                  $done = __('Done');
 
                   $script=<<<JAVASCRIPT
-   function showtaskform(e){
-      e.preventDefault();
-      $('<div>')
-      .dialog({
-         modal:  true,
-         width:  'auto',
-         height: 'auto',
-      })
-      .load('{$ajax_url}?showform=true', function() {
-         $(this).dialog('option', 'position', ['center', 'center'] );
-      });
-   }
+	function showtaskform(e){
+		e.preventDefault();
+		$('<div>')
+			.dialog({
+				modal:  true,
+				width:  'auto',
+				height: 'auto',
+			})
+			.load('{$ajax_url}?showform=true', function() {
+				$(this).dialog('option', 'position', ['center', 'center'] );
+			});
+	}
 	$(document).ready(function(){
 		var x;
 		if (!$("#message_result").length) {
@@ -111,6 +124,66 @@ class PluginActualtimeTask extends CommonDBTM{
 			startCount($("#actualtime1{$rand}").attr("task_id"));
 		}
 
+		function timeToText(time,format) {
+			var text;
+			var distance=time;
+			var seconds = 0;
+			var minutes = 0;
+			var hours = 0;
+			// format=2, real_clock field
+			seconds = distance % 60;
+			distance-=seconds;
+			text=seconds + " {$ssymbol}";
+			if (distance>0) {
+				minutes = (distance % 3600) / 60;
+				distance-=minutes*60;
+				text= minutes + " {$msymbol} " + text;
+				if (distance>0) {
+					hours = distance / 3600;
+					distance-=hours*3600;
+					text= hours + " {$hsymbol} " + text;
+				}
+			}
+			if (format==1) {
+				// Duration field
+				text = hours + "{$hsymbol}";
+				if (minutes < 10) {
+					text += '0';
+				}
+				text += minutes + "{$msymbol}";
+				if (seconds > 0) {
+					if (seconds < 10) {
+						text += '0';
+					}
+					text += seconds + "{$ssymbol}";
+				}
+			}
+			if (format==3) {
+				// External action time field
+				if (time < 60) {
+					text = seconds + (seconds > 1 ? " {$seconds}" : " {$second}")
+				} else {
+					text = minutes + (minutes > 1 ? " {$minutes}" : " {$minute}")
+					if (hours > 0) {
+						text = hours + (hours > 1 ? " {$hours} " : " {$hour} ") + text;
+					}
+				}
+			}
+			return text;
+		}
+
+		function adjustDurationField(time) {
+			var durationselect = $('#actualtime2{$rand}').closest('form').find("select[name='actiontime']");
+			if (durationselect.find('option[value="'+time+'"]').length == 0) {
+				// There is no option with current value
+				durationselect.append('<option value="'+time+'">'+timeToText(time, 1)+'</option>');
+			}
+			durationselect.val(time).trigger('change');
+		}
+
+		// Adjust initial duration field anyway with current task activetime
+		adjustDurationField({$item->fields['actiontime']});
+
 		function startCount(id) {
 			$('#real_clock{$rand}').css('color','red');
 			jQuery.ajax({
@@ -122,38 +195,10 @@ class PluginActualtimeTask extends CommonDBTM{
 					var time=result;
 					x=setInterval(function(){
 						time+=1;
-						var text;
-						var distance=time;
-						var seconds = 0;
-						var minutes = 0;
-						var hours = 0;
-						var days = 0;
-						seconds = distance % 60;
-						distance-=seconds;
-						text=seconds + " s";
-						if (distance>0) {
-							minutes = (distance % 3600) / 60;
-							distance-=minutes*60;
-							text= minutes + " m " +seconds + " s";
-							if (distance>0) {
-								hours = (distance % 86400) / 3600;
-								distance-=hours*3600;
-								text= hours + " h " +minutes + " m " +seconds + " s";
-								if (distance>0) {
-									days = distance / 86400;
-									text= days + " d " +hours + " h " +minutes + " m " +seconds + " s";
-								}
-							}
-						}
-						$('#real_clock{$rand}').text(text);
+						$('#real_clock{$rand}').text(timeToText(time, 2));
 					},1000);
 				},
 			});
-		}
-
-		function endCount(){
-			clearInterval(x);
-			$('#real_clock{$rand}').css('color','black');
 		}
 
 		$("#actualtime1{$rand}").click(function(event){
@@ -176,14 +221,27 @@ class PluginActualtimeTask extends CommonDBTM{
 				success: function (result) {
 					if (result['class']=='info_msg') {
 						if (val=='end' || val=='pause') {
+							var parentdiv = $('#actualtime1{$rand}').closest("div.h_content.TicketTask");
 							if (val=='end') {
 								$("table:has(#actualtime2{$rand}) select[name='state']").val(2).trigger('change');
+								parentdiv.find("div.displayed_content span.state.state_1").toggleClass("state_1 state_2").attr("title", "{$done}");
 								$('#actualtime1{$rand}').attr('action','').css('background-color','gray').prop('disabled',true);
 								$('#actualtime2{$rand}').attr('action','').css('background-color','gray').prop('disabled',true);
 							} else {
 								$('#actualtime1{$rand}').attr('value','$text_restart').attr('action','start').css('background-color','green').prop('disabled',false);
 							}
-							endCount();
+							if (result['duration']) {
+								adjustDurationField(result['duration']);
+								$('#real_clock{$rand}').text(timeToText(result['duration'], 2));
+								var childdiv = parentdiv.find("div.displayed_content>div.b_right");
+								if (childdiv.children("span.actiontime").length == 0) {
+									// There's no external actiontime
+									childdiv.prepend('<span class="actiontime" />');
+								}
+								childdiv.children("span.actiontime").text(timeToText(result['duration'], 3));
+							}
+							clearInterval(x);
+							$('#real_clock{$rand}').css('color','black');
 						} else if (val=='start') {
 							$('#actualtime1{$rand}').attr('value','$text_pause').attr('action','pause').css('background-color','orange').prop('disabled',false);
 							$('#actualtime2{$rand}').attr('action','end').css('background-color','red').prop('disabled',false);
@@ -449,8 +507,8 @@ JAVASCRIPT;
          $html="<table class='tab_cadre_fixe'>";
          $html.="<tr><th colspan='2'>ActualTime</th></tr>";
 
-         $html.="<tr class='tab_bg_2'><td>".__("Total duration")."</td><td>".HTML::timestampToString($total_time)."</td></tr>";
-         $html.="<tr class='tab_bg_2'><td>ActualTime - ".__("Total duration")."</td><td>".HTML::timestampToString($actual_totaltime)."</td></tr>";
+         $html.="<tr class='tab_bg_2'><td>".__("Total duration")."</td><td>".self::timeFormated($total_time, 3)."</td></tr>";
+         $html.="<tr class='tab_bg_2'><td>ActualTime - ".__("Total duration")."</td><td>".self::timeFormated($actual_totaltime, 3)."</td></tr>";
 
          $diff=$total_time-$actual_totaltime;
          if ($diff<0) {
@@ -458,7 +516,7 @@ JAVASCRIPT;
          } else {
             $color='black';
          }
-         $html.="<tr class='tab_bg_2'><td>".__("Duration Diff", "actiontime")."</td><td style='color:".$color."'>".HTML::timestampToString($diff)."</td></tr>";
+         $html.="<tr class='tab_bg_2'><td>".__("Duration Diff", "actiontime")."</td><td style='color:".$color."'>".self::timeFormated($diff, 3)."</td></tr>";
          if ($total_time==0) {
             $diffpercent=0;
          } else {
@@ -521,15 +579,15 @@ JAVASCRIPT;
          foreach ($list as $key => $value) {
             $html.="<tr class='tab_bg_2'><td>".$value['name']."</td>";
 
-            $html.="<td>".HTML::timestampToString($value['total'])."</td>";
+            $html.="<td>".self::timeFormated($value['total'], 3)."</td>";
 
-            $html.="<td>".HTML::timestampToString($value['actual_total'])."</td>";
+            $html.="<td>".self::timeFormated($value['actual_total'], 3)."</td>";
             if (($value['total']-$value['actual_total'])<0) {
                $color='red';
             } else {
                $color='black';
             }
-            $html.="<td style='color:".$color."'>".HTML::timestampToString($value['total']-$value['actual_total'])."</td>";
+            $html.="<td style='color:".$color."'>".self::timeFormated($value['total']-$value['actual_total'], 3)."</td>";
             if ($value['total']==0) {
                $html.="<td style='color:".$color."'>0%</td></tr>";
             } else {
@@ -575,7 +633,7 @@ JAVASCRIPT;
       ];
       $html="<tr><td colspan='2'><table class='tab_cadre_fixe'>";
       foreach ($DB->request($query) as $id => $row) {
-         $html.="<tr class='tab_bg_2'><td>".$row['actual_begin']."</td><td>".HTML::timestampToString($row['actual_actiontime'])."</td></tr>";
+         $html.="<tr class='tab_bg_2'><td>".$row['actual_begin']."</td><td>".self::timeFormated($row['actual_actiontime'], 3)."</td></tr>";
       }
       $html.="</table></td></tr>";
       return $html;
@@ -791,6 +849,93 @@ JAVASCRIPT;
 JAVASCRIPT;
          print_r(Html::scriptBlock($script));
       }
+   }
+
+   /**
+    * Format the time given in second
+    *
+    * @param $timestamp  Long     time in seconds
+    *        $type       Long     format to be returned:
+    *                                1: 0h00min01s | 0h01 | 1h01
+    *                                    (default, used in timestamp dropout)
+    *                                2: 1 s | 1 min 1 s | 1 h 1 min 1s
+    *                                3: 1 second | 1 minute 1 second |
+    *                                      1 hour 1 minute 1 second
+    *        $roundit    Boolean  if the time should be rounded using plugin
+    *                                and system settings (default: false)
+    *
+    * @return String
+   **/
+   static function timeFormated($timestamp, $type=1, $roundit=false) {
+      if ($roundit) {
+         $timestamp = self::timeRounded($timestamp);
+      }
+      $hour = floor($timestamp / HOUR_TIMESTAMP);
+      $minute = floor(($timestamp % HOUR_TIMESTAMP) / MINUTE_TIMESTAMP);
+      $second = $timestamp % MINUTE_TIMESTAMP;
+      //TRANS: 'h' is the symbol for hour
+      $hsymbol = __('h', 'actualtime');
+      //TRANS: 'min' is the symbol for minute
+      $msymbol = __('min', 'actualtime');
+      //TRANS: 's' is the symbol for second
+      $ssymbol = __('s', 'actualtime');
+      $result = '';
+      switch ($type) {
+         case 2:
+            if ($hour > 0) {
+               $result .= " $hour $hsymbol";
+            }
+            if ($hour + $minute > 0) {
+               $result .= " $minute $msymbol";
+            }
+            $result .= " $second $ssymbol";
+            break;
+         case 3:
+            if ($hour > 0) {
+               $result .= ' ' . sprintf(_n('%d hour', '%d hours', $hour), $hour);
+            }
+            if ($hour + $minute > 0) {
+               $result .= ' ' . sprintf(_n('%d minute', '%d minutes', $minute), $minute);
+            }
+            $result .= ' ' . sprintf(_n('%d second', '%d seconds', $second), $second);
+            break;
+         default:
+            $result = " $hour$hsymbol" . sprintf('%02d', $minute);
+            if ($second > 0) {
+               $result .= $msymbol . sprintf('%02d', $second) . $ssymbol;
+            }
+      }
+      return substr($result,1);
+   }
+
+   /**
+    * Round accordingly the time given in second
+    *
+    * @param $timestamp  Long  time in seconds
+    *
+    * @return Long  time in seconds rounded using system settings
+   **/
+   static function timeRounded($timestamp) {
+      global $CFG_GLPI;
+
+      $config = new PluginActualtimeConfig;
+      if ($config->fields['durationround'] > 0) {
+         // round the time, according to the settings
+         $timestamp = $timestamp / ($CFG_GLPI['time_step'] * MINUTE_TIMESTAMP);
+         switch ($config->fields['durationround']) {
+            case 1:
+               $timestamp = round($timestamp);
+               break;
+            case 2:
+               $timestamp = floor($timestamp);
+               break;
+            case 3:
+               $timestamp = ceil($timestamp);
+               break;
+         }
+         $timestamp = $timestamp * ($CFG_GLPI['time_step'] * MINUTE_TIMESTAMP);
+      }
+      return $timestamp;
    }
 
    static function install(Migration $migration) {
