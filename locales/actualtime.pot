@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Actualtime Plugin 1.1.0\n"
 "Report-Msgid-Bugs-To: https://github.com/ticgal/actualtime/issues\n"
-"POT-Creation-Date: 2019-03-06 02:03-0300\n"
+"POT-Creation-Date: 2019-03-07 23:22-0300\n"
 "PO-Revision-Date: 2019-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -33,11 +33,11 @@ msgstr ""
 msgid "Timer completed"
 msgstr ""
 
-#: ajax/timer.php:132
+#: ajax/timer.php:107
 msgid "Only the user who initiated the task can close it"
 msgstr ""
 
-#: ajax/timer.php:146
+#: ajax/timer.php:121
 msgid "The task had not been initialized"
 msgstr ""
 
@@ -62,22 +62,26 @@ msgid "Update task duration on timer stop"
 msgstr ""
 
 #: inc/config.class.php:103
-msgid "Normal round"
+msgid "Do not round total duration"
 msgstr ""
 
 #: inc/config.class.php:104
-msgid "Round down"
+msgid "Normal round"
 msgstr ""
 
 #: inc/config.class.php:105
+msgid "Round down"
+msgstr ""
+
+#: inc/config.class.php:106
 msgid "Round up"
 msgstr ""
 
-#: inc/config.class.php:107
+#: inc/config.class.php:108
 msgid "Round method"
 msgstr ""
 
-#: inc/config.class.php:126
+#: inc/config.class.php:127
 msgid "Actual time"
 msgstr ""
 
@@ -93,18 +97,33 @@ msgstr ""
 msgid "Pause"
 msgstr ""
 
-#: inc/task.class.php:82
+#: inc/task.class.php:79
 msgid "Partial actual duration"
 msgstr ""
 
-#: inc/task.class.php:83
+#: inc/task.class.php:80
 msgid "Actual Duration"
 msgstr ""
 
-#: inc/task.class.php:443 inc/task.class.php:449 inc/task.class.php:455
+#. TRANS: 'h' is the symbol for hour
+#: inc/task.class.php:87 inc/task.class.php:877
+msgid "h"
+msgstr ""
+
+#. TRANS: 'min' is the symbol for minute
+#: inc/task.class.php:89 inc/task.class.php:879
+msgid "min"
+msgstr ""
+
+#. TRANS: 's' is the symbol for second
+#: inc/task.class.php:91 inc/task.class.php:881
+msgid "s"
+msgstr ""
+
+#: inc/task.class.php:519 inc/task.class.php:525 inc/task.class.php:531
 msgid "Duration Diff"
 msgstr ""
 
-#: inc/task.class.php:686
+#: inc/task.class.php:763
 msgid "Timer started on"
 msgstr ""

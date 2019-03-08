@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: https://github.com/ticgal/actualtime/issues\n"
-"POT-Creation-Date: 2019-03-05 14:04-0300\n"
+"POT-Creation-Date: 2019-03-07 23:22-0300\n"
 "PO-Revision-Date: 2019-02-19 15:50-0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -17,10 +17,6 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Generator: Poedit 2.0.6\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-
-#: setup.php:9 inc/task.class.php:15
-msgid "ActualTime"
-msgstr "TempoReal"
 
 #: ajax/timer.php:17
 msgid "A user is already performing the task"
@@ -34,15 +30,15 @@ msgstr "Você já está realizando uma tarefa"
 msgid "Timer started"
 msgstr "Cronômetro iniciado"
 
-#: ajax/timer.php:88
+#: ajax/timer.php:79
 msgid "Timer completed"
 msgstr "Cronômetro finalizado"
 
-#: ajax/timer.php:97
+#: ajax/timer.php:107
 msgid "Only the user who initiated the task can close it"
 msgstr "Somente o usuário que iniciou a tarefa pode encerrá-la"
 
-#: ajax/timer.php:111
+#: ajax/timer.php:121
 msgid "The task had not been initialized"
 msgstr "A tarefa não foi inicializada"
 
@@ -54,9 +50,45 @@ msgstr "Configuração do cronômetro de tarefas"
 msgid "Enable timer on tasks"
 msgstr "Habilitar cronômetro nas tarefas"
 
+#: inc/config.class.php:88
+msgid "Automatically open new created tasks"
+msgstr ""
+
+#: inc/config.class.php:92
+msgid "Automatically open task with timer running"
+msgstr ""
+
+#: inc/config.class.php:98
+msgid "Update task duration on timer stop"
+msgstr ""
+
 #: inc/config.class.php:103
+msgid "Do not round total duration"
+msgstr ""
+
+#: inc/config.class.php:104
+msgid "Normal round"
+msgstr ""
+
+#: inc/config.class.php:105
+msgid "Round down"
+msgstr ""
+
+#: inc/config.class.php:106
+msgid "Round up"
+msgstr ""
+
+#: inc/config.class.php:108
+msgid "Round method"
+msgstr ""
+
+#: inc/config.class.php:127
 msgid "Actual time"
 msgstr "Tempo real"
+
+#: inc/task.class.php:15
+msgid "ActualTime"
+msgstr "TempoReal"
 
 #: inc/task.class.php:22
 msgid "Restart"
@@ -66,18 +98,33 @@ msgstr "Reinício"
 msgid "Pause"
 msgstr "Pausa"
 
-#: inc/task.class.php:82
+#: inc/task.class.php:79
 msgid "Partial actual duration"
 msgstr "Duração real parcial"
 
-#: inc/task.class.php:83
+#: inc/task.class.php:80
 msgid "Actual Duration"
 msgstr "Duração real"
 
-#: inc/task.class.php:436 inc/task.class.php:442 inc/task.class.php:448
+#. TRANS: 'h' is the symbol for hour
+#: inc/task.class.php:87 inc/task.class.php:877
+msgid "h"
+msgstr ""
+
+#. TRANS: 'min' is the symbol for minute
+#: inc/task.class.php:89 inc/task.class.php:879
+msgid "min"
+msgstr ""
+
+#. TRANS: 's' is the symbol for second
+#: inc/task.class.php:91 inc/task.class.php:881
+msgid "s"
+msgstr ""
+
+#: inc/task.class.php:519 inc/task.class.php:525 inc/task.class.php:531
 msgid "Duration Diff"
 msgstr "Diferença"
 
-#: inc/task.class.php:603
+#: inc/task.class.php:763
 msgid "Timer started on"
 msgstr "Cronômetro iniciado no"
