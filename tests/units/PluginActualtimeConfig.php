@@ -38,8 +38,8 @@ class PluginActualtimeConfig extends atoum {
    public function testShowTimerPopup() {
       $this
          ->given($this->newTestedInstance)
-            ->boolean($this->testedInstance->showTimerPopup())
-               ->isTrue();
+            ->integer($this->testedInstance->showTimerPopup())
+               ->isEqualTo(1);
    }
 
    public function testCanView() {

@@ -225,13 +225,13 @@ class PluginActualtimeConfig extends CommonDBTM {
             ]
          );
 
-         // For whom the actualtime timers are displayes?
+         // For whom the actualtime timers are displayed?
          // 0 - All users
          // 1 - Only user assigned to the task
          $migration->addField(
             $table,
             'displayinfofor',
-            'boolean',
+            'smallint',
             [
                'update' => 1,
                'value'  => 1,

@@ -117,7 +117,7 @@ JAVASCRIPT;
 
                   echo $html;
 
-                  // Finally, fill the actual total time in all timers 
+                  // Finally, fill the actual total time in all timers
                   $script .= <<<JAVASCRIPT
 
    actualtime_fillCurrentTime($task_id, $time);

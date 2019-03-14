@@ -14,6 +14,5 @@ sed -i "s/YEAR/$(date +%Y)/" actualtime.pot
 
 for a in $(ls *.po); do
 	msgmerge -U $a actualtime.pot
-	msgfmt $a -o "${a%.*}.mo"
 done
 rm -f *.po~
