@@ -89,6 +89,12 @@ class PluginActualtimeConfig extends CommonDBTM {
       echo "</td>";
       echo "</tr>";
 
+      echo "<tr class='tab_bg_1' name='optional$rand' $style>";
+      echo "<td>" . __("Display actual time in closed task box ('Processing ticket' list)", "actualtime") . "</td><td>";
+      Dropdown::showYesNo('showtimerinbox', $this->showTimerInBox(), -1);
+      echo "</td>";
+      echo "</tr>";
+
       $values = [
          0 => __('For all users', 'actualtime'),
          1 => __('Only for task\'s assigned user', 'actualtime'),
@@ -152,6 +158,15 @@ class PluginActualtimeConfig extends CommonDBTM {
    }
 
    /**
+    * Is timer shown in closed task box at 'Actions historical' page?
+    *
+    * @return boolean
+    */
+   function showTimerInBox() {
+      return ($this->fields['showtimerinbox'] ? true : false);
+   }
+
+   /**
     * Is actual time information (timers) shown to every user?
     *
     * @return boolean
@@ -199,6 +214,17 @@ class PluginActualtimeConfig extends CommonDBTM {
             ]
          );
 
+         $migration->addField(
+            $table,
+            'showtimerinbox',
+            'boolean',
+            [
+               'update' => 1,
+               'value'  => 1,
+               'after' => 'showtimerpopup'
+            ]
+         );
+
          // For whom the actualtime timers are displayes?
          // 0 - All users
          // 1 - Only user assigned to the task
@@ -209,7 +235,7 @@ class PluginActualtimeConfig extends CommonDBTM {
             [
                'update' => 1,
                'value'  => 1,
-               'after' => 'showtimerpopup'
+               'after' => 'showtimerinbox'
             ]
          );
 
