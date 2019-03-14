@@ -185,10 +185,64 @@ class PluginActualtimeConfig extends CommonDBTM {
          $query = "CREATE TABLE IF NOT EXISTS $table (
                       `id` int(11) NOT NULL auto_increment,
                       `enable` boolean NOT NULL DEFAULT true,
+                      `showtimerpopup` boolean NOT NULL DEFAULT true,
+                      `showtimerinbox` boolean NOT NULL DEFAULT true,
+                      `displayinfofor` smallint(2) NOT NULL DEFAULT 1,
                       PRIMARY KEY (`id`)
                    )
                    ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci";
          $DB->query($query) or die($DB->error());
+      } else {
+         $fields = $DB->list_fields($table, false);
+
+         if (! isset($fields['showtimerpopup'])) {
+            $migration->addField(
+               $table,
+               'showtimerpopup',
+               'boolean',
+               [
+                  'update' => true,
+                  'value'  => true,
+                  'after' => 'enable'
+               ]
+            );
+         }
+
+         if (! isset($fields['showtimerinbox'])) {
+            $migration->addField(
+               $table,
+               'showtimerinbox',
+               'boolean',
+               [
+                  'update' => true,
+                  'value'  => true,
+                  'after' => 'showtimerpopup'
+               ]
+            );
+         }
+
+         if (! isset($fields['displayinfofor'])) {
+            // For whom the actualtime timers are displayed?
+            // 0 - All users
+            // 1 - Only user assigned to the task
+            $migration->addField(
+               $table,
+               'displayinfofor',
+               'smallint(2)',
+               [
+                  'update' => 1,
+                  'value'  => 1,
+                  'after' => 'showtimerinbox'
+               ]
+            );
+         } else {
+            // Beta version created field with incorrect type
+            if ($fields['displayinfofor']['Type'] != "smallint(2)") {
+               $query = "ALTER TABLE $table MODIFY `displayinfofor` smallint(2) NOT NULL DEFAULT 1";
+               $DB->query($query) or die($DB->error());
+            }
+         }
+
       }
 
       if ($DB->tableExists($table)) {
@@ -198,46 +252,10 @@ class PluginActualtimeConfig extends CommonDBTM {
          if (! count($reg)) {
             $DB->insert(
                $table, [
-                  'enable' => 1
+                  'enable' => true
                ]
             );
          }
-
-         $migration->addField(
-            $table,
-            'showtimerpopup',
-            'boolean',
-            [
-               'update' => 1,
-               'value'  => 1,
-               'after' => 'enable'
-            ]
-         );
-
-         $migration->addField(
-            $table,
-            'showtimerinbox',
-            'boolean',
-            [
-               'update' => 1,
-               'value'  => 1,
-               'after' => 'showtimerpopup'
-            ]
-         );
-
-         // For whom the actualtime timers are displayed?
-         // 0 - All users
-         // 1 - Only user assigned to the task
-         $migration->addField(
-            $table,
-            'displayinfofor',
-            'smallint',
-            [
-               'update' => 1,
-               'value'  => 1,
-               'after' => 'showtimerinbox'
-            ]
-         );
 
       }
 
