@@ -128,6 +128,11 @@ function actualtime_endCount(){
    clearInterval(timer);
 }
 
+function actualtime_fillCurrentTime(task, time) {
+   var timestr = actualtime_timeToText(time, 1);
+   $("[id^='actualtime_timer_" + task + "_']").text(timestr);
+}
+
 function actualtime_pressedButton(task, val) {
    jQuery.ajax({
       type:     "POST",

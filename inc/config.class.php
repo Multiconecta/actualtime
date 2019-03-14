@@ -89,6 +89,22 @@ class PluginActualtimeConfig extends CommonDBTM {
       echo "</td>";
       echo "</tr>";
 
+      $values = [
+         0 => __('For all users', 'actualtime'),
+         1 => __('Only for task\'s assigned user', 'actualtime'),
+      ];
+      echo "<tr class='tab_bg_1' name='optional$rand' $style>";
+      echo "<td>" . __("Display actual time information on task forms", "actualtime") . "</td><td>";
+      Dropdown::showFromArray(
+         'displayinfofor',
+         $values,
+         [
+            'value' => $this->fields['displayinfofor']
+         ]
+      );
+      echo "</td>";
+      echo "</tr>";
+
       //echo "<tr class='tab_bg_1' name='optional$rand' $style>
       //   <td>example settings 2";
       //echo "</td>";
@@ -118,7 +134,7 @@ class PluginActualtimeConfig extends CommonDBTM {
    }
 
    /**
-    * Plugin is enabled in plugin settings?
+    * Is plugin enabled in plugin settings?
     *
     * @return boolean
     */
@@ -127,12 +143,21 @@ class PluginActualtimeConfig extends CommonDBTM {
    }
 
    /**
-    * Timer pop-up display on every page enabled in plugin settings?
+    * Is displaying timer pop-up on every page enabled in plugin settings?
     *
     * @return boolean
     */
    function showTimerPopup() {
       return ($this->fields['showtimerpopup'] ? true : false);
+   }
+
+   /**
+    * Is actual time information (timers) shown to every user?
+    *
+    * @return boolean
+    */
+   function displayInfoForEveryone() {
+      return ($this->fields['displayinfofor'] == 0);
    }
 
    static function install(Migration $migration) {
@@ -171,6 +196,20 @@ class PluginActualtimeConfig extends CommonDBTM {
                'update' => 1,
                'value'  => 1,
                'after' => 'enable'
+            ]
+         );
+
+         // For whom the actualtime timers are displayes?
+         // 0 - All users
+         // 1 - Only user assigned to the task
+         $migration->addField(
+            $table,
+            'displayinfofor',
+            'boolean',
+            [
+               'update' => 1,
+               'value'  => 1,
+               'after' => 'showtimerpopup'
             ]
          );
 
