@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: https://github.com/ticgal/actualtime/issues\n"
-"POT-Creation-Date: 2019-03-05 14:04-0300\n"
+"POT-Creation-Date: 2019-03-15 23:46-0300\n"
 "PO-Revision-Date: 2019-02-19 15:50-0300\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -18,33 +18,65 @@ msgstr ""
 "X-Generator: Poedit 2.0.6\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: setup.php:9 inc/task.class.php:15
-msgid "ActualTime"
-msgstr "TempoReal"
-
-#: ajax/timer.php:17
+#: ajax/timer.php:18
 msgid "A user is already performing the task"
 msgstr "Outro usuário já está realizando a tarefa"
 
-#: ajax/timer.php:30
+#: ajax/timer.php:31
 msgid "You are already doing a task"
 msgstr "Você já está realizando uma tarefa"
 
-#: ajax/timer.php:46
+#: ajax/timer.php:47
 msgid "Timer started"
 msgstr "Cronômetro iniciado"
 
-#: ajax/timer.php:88
+#: ajax/timer.php:91 ajax/timer.php:131
 msgid "Timer completed"
 msgstr "Cronômetro finalizado"
 
-#: ajax/timer.php:97
+#: ajax/timer.php:102
 msgid "Only the user who initiated the task can close it"
 msgstr "Somente o usuário que iniciou a tarefa pode encerrá-la"
 
-#: ajax/timer.php:111
+#: ajax/timer.php:116
 msgid "The task had not been initialized"
 msgstr "A tarefa não foi inicializada"
+
+#. TRANS: d is a symbol for days in a time (displays: 3d)
+#: ajax/timer.php:157
+#, php-format
+msgid "%dd"
+msgstr "%d"
+
+#. TRANS: h is a symbol for hours in a time (displays: 3h)
+#: ajax/timer.php:161
+#, php-format
+msgid "%dh"
+msgstr "%dh"
+
+#. TRANS: min is a symbol for minutes in a time (displays: 3min)
+#: ajax/timer.php:165
+#, php-format
+msgid "%dmin"
+msgstr "%dmin"
+
+#. TRANS: s is a symbol for seconds in a time (displays: 3s)
+#: ajax/timer.php:169
+#, php-format
+msgid "%ds"
+msgstr "%ds"
+
+#: ajax/timer.php:173 inc/task.class.php:32
+msgid "Pause"
+msgstr "Pausa"
+
+#: ajax/timer.php:174 inc/task.class.php:31
+msgid "Restart"
+msgstr "Reinício"
+
+#: ajax/timer.php:180
+msgid "Timer started on"
+msgstr "Cronômetro iniciado no"
 
 #: inc/config.class.php:57
 msgid "Task timer configuration"
@@ -54,30 +86,22 @@ msgstr "Configuração do cronômetro de tarefas"
 msgid "Enable timer on tasks"
 msgstr "Habilitar cronômetro nas tarefas"
 
-#: inc/config.class.php:103
+#: inc/config.class.php:87
+msgid "Display pop-up window with current running timer"
+msgstr "Mostrar janela de aviso com o cronômetro atual"
+
+#: inc/config.class.php:105
 msgid "Actual time"
 msgstr "Tempo real"
 
-#: inc/task.class.php:22
-msgid "Restart"
-msgstr "Reinício"
-
-#: inc/task.class.php:23
-msgid "Pause"
-msgstr "Pausa"
-
-#: inc/task.class.php:82
+#: inc/task.class.php:85 inc/task.class.php:111
 msgid "Partial actual duration"
 msgstr "Duração real parcial"
 
-#: inc/task.class.php:83
+#: inc/task.class.php:86 inc/task.class.php:112
 msgid "Actual Duration"
 msgstr "Duração real"
 
-#: inc/task.class.php:436 inc/task.class.php:442 inc/task.class.php:448
+#: inc/task.class.php:328 inc/task.class.php:334 inc/task.class.php:340
 msgid "Duration Diff"
 msgstr "Diferença"
-
-#: inc/task.class.php:603
-msgid "Timer started on"
-msgstr "Cronômetro iniciado no"
