@@ -1,4 +1,4 @@
-var ajax_url = '../plugins/actualtime/ajax/timer.php';
+var ajax_url;
 var timer;
 var popup_div = '';
 // Translations
@@ -218,6 +218,17 @@ $(document).ready(function(){
    if (!$("#message_result").length) {
       $("body").append("<div id='message_result'></div>");
    }
+
+   // Try to find out ajax url
+   var loc = location.pathname;
+   var pos = loc.search('/front/');
+   if (pos > 0) {
+      var pos2 = location.pathname.search('/plugins/');
+      if (pos2 < pos) {
+         pos = pos2;
+      }
+   }
+   ajax_url = loc.substring(0,pos) + '/plugins/actualtime/ajax/timer.php';
 
    // Initialize
    jQuery.ajax({
